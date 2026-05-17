@@ -8,7 +8,7 @@
 #define TIME_FLOOR_LONG   7700
 
 #define PRESENCE_THRESHOLD 500
-#define WEIGHT_THRESHOLD   512  // Au dessus = surcharge
+#define WEIGHT_THRESHOLD   512
 
 #define FLOOR_NUM 6
 
@@ -59,18 +59,17 @@ void loop() {
   bool someone_present = presence < PRESENCE_THRESHOLD;
   bool overload = pressure > WEIGHT_THRESHOLD;
 
-  // Surcharge : forcer ouverture des portes
+  // Surcharge
   if(overload && state != STATE_STOPPED) {
     cabin_door(CABIN_DOOR_OPEN);
     state = STATE_OVERLOAD;
   }
-
   if(state == STATE_OVERLOAD && !overload) {
     cabin_door(CABIN_DOOR_STOP);
     state = STATE_OPENED;
   }
-
   if(state == STATE_OVERLOAD) {
+    floor_set_direction(0);
     floor_feedback(cabin_current_floor(), "(SURCHARGE!!)  ");
     return;
   }
@@ -80,12 +79,12 @@ void loop() {
     stopped = !stopped;
     if(stopped) {
       cabin_stop();
+      floor_set_direction(0);
       state = STATE_STOPPED;
     } else {
       state = STATE_OPENED;
     }
   }
-
   if(state == STATE_STOPPED) {
     floor_feedback(cabin_current_floor(), "(STOP)         ");
     return;
@@ -107,6 +106,7 @@ void loop() {
 
   switch(state) {
     case STATE_OPENED:
+      floor_set_direction(0);
       target = floor_requested(cabin_current_floor());
       status = someone_present ? "(someone here) " : "(waiting...)   ";
       if(timer_elapsed(timer, time_opened) && target>=0) {
@@ -115,6 +115,7 @@ void loop() {
       }
       break;
     case STATE_FORCE_OPEN:
+      floor_set_direction(0);
       status = "(door open)    ";
       if(floor_close_pressed() || floor_stop_pressed()) {
         cabin_door(CABIN_DOOR_STOP);
@@ -122,6 +123,7 @@ void loop() {
       }
       break;
     case STATE_FORCE_CLOSE:
+      floor_set_direction(0);
       status = "(door close)   ";
       if(floor_open_pressed() || floor_stop_pressed()) {
         cabin_door(CABIN_DOOR_STOP);
@@ -129,6 +131,7 @@ void loop() {
       }
       break;
     case STATE_CLOSING:
+      floor_set_direction(0);
       cabin_door(CABIN_DOOR_CLOSE);
       status = "(closing doors)";
       if(timer_elapsed(timer, TIME_DOORS)) {
@@ -136,14 +139,18 @@ void loop() {
         state = STATE_MOVING;
       }
       break;
-    case STATE_MOVING: 
+    case STATE_MOVING:
+      // Direction selon la cible
+      floor_set_direction(target > cabin_current_floor() ? 1 : -1);
       status = "(moving)       ";
       if(cabin_move(timer, target, movetime()) == target) {
         cabin_stop();
+        floor_set_direction(0);
         state = STATE_OPENING;
       }
       break;
     case STATE_OPENING:
+      floor_set_direction(0);
       status = "(opening doors)";
       cabin_door(CABIN_DOOR_OPEN);
       if(timer_elapsed(timer, TIME_DOORS)) {

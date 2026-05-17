@@ -23,6 +23,7 @@ static size_t _floors_size;
 static bool _stop_pressed  = false;
 static bool _open_pressed  = false;
 static bool _close_pressed = false;
+static int _direction = 0; // -1 descend, 0 arrêt, 1 monte
 
 static bool ladder_pressed(int expected, int actual);
 static void neopixel_switch(int led, bool on);
@@ -43,6 +44,10 @@ int floor_init(floor_info floors[], size_t floor_num) {
   _leds.begin();
   floor_feedback(start);
   return start;
+}
+
+void floor_set_direction(int dir) {
+  _direction = dir;
 }
 
 void floor_feedback(int current, const char* status) {
@@ -75,7 +80,19 @@ void floor_feedback(int current, const char* status) {
     neopixel_switch(info.ledUp  , IS_PRESSED(btns, BTN_UP));
     neopixel_switch(info.ledDown, IS_PRESSED(btns, BTN_DOWN));
     neopixel_switch(i           , IS_PRESSED(btns, BTN_PANEL));
-    info.upper7seg.printNumber(_floors[current].displayVal, 10);
+
+    // Animation 7 segments selon direction
+    if(_direction == 1) {
+      // Flèche montée : affiche le chiffre + segment du haut
+      info.upper7seg.printNumber(_floors[current].displayVal, 10);
+      info.upper7seg.writeDigitRaw(4, 0x01); // segment du haut allumé
+    } else if(_direction == -1) {
+      // Flèche descente : affiche le chiffre + segment du bas
+      info.upper7seg.printNumber(_floors[current].displayVal, 10);
+      info.upper7seg.writeDigitRaw(4, 0x08); // segment du bas allumé
+    } else {
+      info.upper7seg.printNumber(_floors[current].displayVal, 10);
+    }
     info.upper7seg.writeDisplay();
   }
   _leds.show();

@@ -36,12 +36,18 @@ struct floor_info {
   Adafruit_7segment upper7seg;
 };
 
-int  floor_init     (floor_info floors[], size_t floor_num);
-void floor_readbtns ();
-void floor_feedback (int current, const char *status = nullptr);
-int  floor_requested(int from);
+int  floor_init        (floor_info floors[], size_t floor_num);
+void floor_readbtns    ();
+void floor_feedback    (int current, const char *status = nullptr);
+int  floor_requested   (int from);
 bool floor_stop_pressed();
 bool floor_open_pressed();
 bool floor_close_pressed();
+
+/**
+ * @brief Définit la direction actuelle de la cabine pour les animations 7 segments.
+ * @param dir 1 = monte, -1 = descend, 0 = arrêt
+ */
+void floor_set_direction(int dir);
 
 #endif
