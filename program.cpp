@@ -1,10 +1,13 @@
 #include "floor.h"
 #include "cabin.h"
 
-#define TIME_OPENED 6000
-#define TIME_DOORS  1700
-#define TIME_FLOOR_SHORT 7150
-#define TIME_FLOOR_LONG  7700
+#define TIME_OPENED       6000
+#define TIME_OPENED_PRES 12000  // Temporisation augmentée si présence détectée
+#define TIME_DOORS        1700
+#define TIME_FLOOR_SHORT  7150
+#define TIME_FLOOR_LONG   7700
+
+#define PRESENCE_THRESHOLD 500  // En dessous = quelqu'un dans la cabine
 
 #define FLOOR_NUM 6
 
@@ -76,11 +79,16 @@ void loop() {
     }
   }
 
+  // Lecture capteur de présence
+  int presence = analogRead(PIN_PRESENCE);
+  bool someone_present = presence < PRESENCE_THRESHOLD;
+  unsigned long time_opened = someone_present ? TIME_OPENED_PRES : TIME_OPENED;
+
   switch(state) {
     case STATE_OPENED:
       target = floor_requested(cabin_current_floor());
-      status = "(waiting...)   ";
-      if(timer_elapsed(timer, TIME_OPENED) && target>=0) {
+      status = someone_present ? "(someone here) " : "(waiting...)   ";
+      if(timer_elapsed(timer, time_opened) && target>=0) {
         cabin_door(CABIN_DOOR_CLOSE);
         state = STATE_CLOSING;
       }
