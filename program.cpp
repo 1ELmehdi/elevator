@@ -6,14 +6,17 @@
 #define TIME_FLOOR_SHORT 7150
 #define TIME_FLOOR_LONG  7700
 
-#define FLOOR_NUM 3
+#define FLOOR_NUM 6
 
 floor_info building[FLOOR_NUM] = {
-  //                               --led--  --btn--
-  // title        key disp  def    up down  up down pressed
-  { "Parking  " , '*', -1, false ,  9,  0,  84,  -1,   0 },
-  { "RDC      " , '0',  0, true  , 11, 10, 101,  93,   0 },
-  { "1er étage" , '1',  1, false , 13, 12, 118, 110,   0 }
+  //                                --led--   --btn--
+  // title          key disp  def   up  down  up   down  pressed
+  { "Parking   " , '*', -1, false ,  9,   0,  84,   -1,   0 },
+  { "RDC       " , '0',  0, true  , 11,  10, 101,   93,   0 },
+  { "1er etage " , '1',  1, false , 13,  12, 118,  110,   0 },
+  { "2eme etage" , '2',  2, false , 15,  14, 133,  126,   0 },
+  { "3eme etage" , '3',  3, false , 17,  16, 149,  141,   0 },
+  { "4eme etage" , '4',  4, false ,  0,  18,  -1,  156,   0 }
 };
 
 enum states {
