@@ -1,8 +1,24 @@
 body {
     padding:0;
     margin: 0;
-    background-color: black;
+    background-color: #0a0f1e;
 }
+
+/* Titre aéroport */
+body::before {
+    content: "✈️ Aéroport de Mérignac - Bordeaux";
+    display: block;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: #FFD700;
+    background-color: #0a0f1e;
+    padding: 8px 0;
+    letter-spacing: 2px;
+    border-bottom: 2px solid #FFD700;
+}
+
 .building {
     display: flex;
     flex-direction: column;
@@ -207,7 +223,6 @@ li.segoff { background-position-x: 0; }
 .d2.seg0.sel {
     background-position-x: -207px;
 }
-
 
 /* Elevator control panel */
 
@@ -436,18 +451,23 @@ li:has(a:hover) .mood, .mood.show {
 .corridor .exit li { display: none; }
 .corridor .exit li:nth-child(1) { display: block; left: 325px; top: 28px; pointer-events: none; }
 .corridor .exit li:nth-child(2) { display: block; left: 420px; top: 45px; pointer-events: none; }
-/* Plaque numéro d'étage */
+
+/* Plaque numéro d'étage - style aéroport */
 .floor-num {
     position: absolute;
     left: 178px;
     top: 212px;
-    width: 28px;
+    width: 45px;
     height: 38px;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 20px;
+    font-size: 14px;
     font-weight: bold;
-    color: #222;
+    color: #FFD700;
+    background-color: #1a2a4a;
     text-align: center;
     line-height: 38px;
     z-index: 2;
+    border: 1px solid #FFD700;
+    border-radius: 3px;
+    letter-spacing: 1px;
 }
