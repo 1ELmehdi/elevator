@@ -14,6 +14,8 @@
 
 #define PIN_LEDS      15
 #define PIN_CALLBTNS  A0
+#define PIN_PRESSURE  16
+#define PIN_PRESENCE  17
 #define PIN_KEYMAP_ROWS { 13, 12, 11, 10 }
 #define PIN_KEYMAP_COLS {  9,  8,  7,  6 }
 
@@ -23,10 +25,6 @@
 #define MAX_LCD_COLS     16
 #define MAX_FLOOR_TITLE  MAX_LCD_COLS+1
 
-/**
- * @struct floor_info
- * @brief Holds configuration and state information for a specific floor.
- */
 struct floor_info {
   char title[MAX_FLOOR_TITLE]; 
   char key; 
@@ -42,23 +40,8 @@ int  floor_init     (floor_info floors[], size_t floor_num);
 void floor_readbtns ();
 void floor_feedback (int current, const char *status = nullptr);
 int  floor_requested(int from);
-
-/**
- * @brief Checks if the STOP button has been pressed.
- * @return true if STOP was pressed, false otherwise.
- */
 bool floor_stop_pressed();
-
-/**
- * @brief Checks if the open door button has been pressed.
- * @return true if open button was pressed, false otherwise.
- */
 bool floor_open_pressed();
-
-/**
- * @brief Checks if the close door button has been pressed.
- * @return true if close button was pressed, false otherwise.
- */
 bool floor_close_pressed();
 
 #endif

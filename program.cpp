@@ -2,12 +2,13 @@
 #include "cabin.h"
 
 #define TIME_OPENED       6000
-#define TIME_OPENED_PRES 12000  // Temporisation augmentée si présence détectée
+#define TIME_OPENED_PRES 12000
 #define TIME_DOORS        1700
 #define TIME_FLOOR_SHORT  7150
 #define TIME_FLOOR_LONG   7700
 
-#define PRESENCE_THRESHOLD 500  // En dessous = quelqu'un dans la cabine
+#define PRESENCE_THRESHOLD 500
+#define WEIGHT_THRESHOLD   512  // Au dessus = surcharge
 
 #define FLOOR_NUM 6
 
@@ -29,7 +30,8 @@ enum states {
   STATE_CLOSING,
   STATE_STOPPED,
   STATE_FORCE_OPEN,
-  STATE_FORCE_CLOSE
+  STATE_FORCE_CLOSE,
+  STATE_OVERLOAD
 };
 
 states state = STATE_OPENED;
@@ -51,7 +53,29 @@ void loop() {
 
   floor_readbtns();
 
-  // Bouton STOP : bascule entre arrêt et redémarrage
+  // Lecture capteurs
+  int presence = analogRead(PIN_PRESENCE);
+  int pressure = analogRead(PIN_PRESSURE);
+  bool someone_present = presence < PRESENCE_THRESHOLD;
+  bool overload = pressure > WEIGHT_THRESHOLD;
+
+  // Surcharge : forcer ouverture des portes
+  if(overload && state != STATE_STOPPED) {
+    cabin_door(CABIN_DOOR_OPEN);
+    state = STATE_OVERLOAD;
+  }
+
+  if(state == STATE_OVERLOAD && !overload) {
+    cabin_door(CABIN_DOOR_STOP);
+    state = STATE_OPENED;
+  }
+
+  if(state == STATE_OVERLOAD) {
+    floor_feedback(cabin_current_floor(), "(SURCHARGE!!)  ");
+    return;
+  }
+
+  // Bouton STOP
   if(floor_stop_pressed()) {
     stopped = !stopped;
     if(stopped) {
@@ -67,7 +91,7 @@ void loop() {
     return;
   }
 
-  // Boutons forcer portes uniquement en attente
+  // Boutons forcer portes
   if(state == STATE_OPENED) {
     if(floor_open_pressed()) {
       cabin_door(CABIN_DOOR_OPEN);
@@ -79,9 +103,6 @@ void loop() {
     }
   }
 
-  // Lecture capteur de présence
-  int presence = analogRead(PIN_PRESENCE);
-  bool someone_present = presence < PRESENCE_THRESHOLD;
   unsigned long time_opened = someone_present ? TIME_OPENED_PRES : TIME_OPENED;
 
   switch(state) {
