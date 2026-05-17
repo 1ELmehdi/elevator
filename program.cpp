@@ -53,13 +53,11 @@ void loop() {
 
   floor_readbtns();
 
-  // Lecture capteurs
   int presence = analogRead(PIN_PRESENCE);
   int pressure = analogRead(PIN_PRESSURE);
   bool someone_present = presence < PRESENCE_THRESHOLD;
   bool overload = pressure > WEIGHT_THRESHOLD;
 
-  // Surcharge
   if(overload && state != STATE_STOPPED) {
     cabin_door(CABIN_DOOR_OPEN);
     state = STATE_OVERLOAD;
@@ -74,7 +72,6 @@ void loop() {
     return;
   }
 
-  // Bouton STOP
   if(floor_stop_pressed()) {
     stopped = !stopped;
     if(stopped) {
@@ -90,7 +87,6 @@ void loop() {
     return;
   }
 
-  // Boutons forcer portes
   if(state == STATE_OPENED) {
     if(floor_open_pressed()) {
       cabin_door(CABIN_DOOR_OPEN);
@@ -140,7 +136,6 @@ void loop() {
       }
       break;
     case STATE_MOVING:
-      // Direction selon la cible
       floor_set_direction(target > cabin_current_floor() ? 1 : -1);
       status = "(moving)       ";
       if(cabin_move(timer, target, movetime()) == target) {
