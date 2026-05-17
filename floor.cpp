@@ -20,6 +20,9 @@ static LiquidCrystal_I2C _lcd(I2C_LCD , MAX_LCD_COLS, 2);
 
 static floor_info *_floors;
 static size_t _floors_size;
+static bool _stop_pressed  = false;
+static bool _open_pressed  = false;
+static bool _close_pressed = false;
 
 static bool ladder_pressed(int expected, int actual);
 static void neopixel_switch(int led, bool on);
@@ -51,7 +54,6 @@ void floor_feedback(int current, const char* status) {
     return;
   }
 
-  // Efface l'écran si l'étage ou le statut a changé
   if(current != last_floor || status != last_status) {
     _lcd.clear();
     last_floor = current;
@@ -87,6 +89,15 @@ void floor_readbtns() {
     if(_floors[i].key == key) {
       _floors[i].pressed |= BTN_PANEL;
     }
+    if(key == 'D') {
+      _stop_pressed = true;
+    }
+    if(key == 'B') {
+      _open_pressed = true;
+    }
+    if(key == 'C') {
+      _close_pressed = true;
+    }
     if(ladder_pressed(_floors[i].callDown, btn)) {
       _floors[i].pressed |= BTN_DOWN;
     }
@@ -106,6 +117,24 @@ int floor_requested(int from) {
     }
   }
   return -1;
+}
+
+bool floor_stop_pressed() {
+  bool result = _stop_pressed;
+  _stop_pressed = false;
+  return result;
+}
+
+bool floor_open_pressed() {
+  bool result = _open_pressed;
+  _open_pressed = false;
+  return result;
+}
+
+bool floor_close_pressed() {
+  bool result = _close_pressed;
+  _close_pressed = false;
+  return result;
 }
 
 bool ladder_pressed(int expected, int actual) {
